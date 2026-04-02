@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Compiler Visualizer</title>
+<link rel="stylesheet" href="style.css">
+
+<script src="dfa.js"></script>
+<script src="lexer.js"></script>
+<script src="symbolTable.js"></script>
+<script src="parser.js"></script>
+<script src="tree.js"></script>
+<script src="compiler.js"></script>
+<script src="drawTree.js"></script>
+<script src="drawDFA.js"></script>
+<script src="highlights.js"></script>
+<script src="script.js"></script>
+
+</head>
+
+<body>
+
+<h2>Compiler Visualizer</h2>
+
+<textarea id="code">
+int x = 5 ;
+float y = 10 ;
+</textarea>
+
+<br><br>
+
+<button onclick="runCompiler()">Compile</button>
+
+<div class="row">
+
+<div>
+<h3>Tokens</h3>
+
+<table id="tokens">
+<thead>
+<tr>
+<th>Line</th>
+<th>Type</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<h3>Symbol Table</h3>
+<pre id="symbols"></pre>
+
+<h3>Errors</h3>
+<pre id="errors"></pre>
+</div>
+
+<div>
+<h3>Parse Tree</h3>
+<canvas id="tree" width="400" height="200"></canvas>
+
+<h3>DFA</h3>
+<canvas id="dfa" width="400" height="200"></canvas>
+</div>
+
+</div>
+
+</body>
+</html>
