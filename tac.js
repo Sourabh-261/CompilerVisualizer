@@ -136,8 +136,16 @@ function generateTAC(tokens) {
         }
 
         // FUNCTION CALL
-        if ((stmt[0]?.type === "ID" || stmt[0]?.type === "KEY") && stmt.some(t => t.value === "(")) {
+        let isFunc = (stmt[0]?.type === "ID" || stmt[0]?.value === "printf" || stmt[0]?.value === "scanf");
+        if (isFunc && stmt.some(t => t.value === "(")) {
             handleCall(stmt);
+            return;
+        }
+
+        // INCREMENT / DECREMENT
+        if (stmt.length >= 2 && stmt[0]?.type === "ID" && (stmt[1]?.value === "++" || stmt[1]?.value === "--")) {
+            let op = stmt[1].value === "++" ? "+" : "-";
+            tac.push(`${stmt[0].value} = ${stmt[0].value} ${op} 1`);
             return;
         }
 
@@ -157,17 +165,21 @@ function generateTAC(tokens) {
     // ================= SPLIT STATEMENTS =================
     let stmts = [];
     let curr = [];
+    let inParen = 0;
 
     tokens.forEach(t => {
 
         // ❌ ignore blocks
         if (t.value === "{" || t.value === "}") return;
 
-        if (t.value === ";") {
+        if (t.value === "(") inParen++;
+        if (t.value === ")") inParen--;
+
+        if (t.value === ";" && inParen === 0) {
             if (curr.length) stmts.push(curr);
             curr = [];
         }
-        else if (t.value === "else") {
+        else if (t.value === "else" && inParen === 0) {
             if (curr.length) stmts.push(curr);
             stmts.push([t]);
             curr = [];
@@ -231,7 +243,7 @@ function generateTAC(tokens) {
             let cond = evalExpr(
                 s.slice(
                     s.findIndex(t => t.value === "(") + 1,
-                    s.findIndex(t => t.value === ")")
+                    s.lastIndexOf(t => t.value === ")") !== -1 ? s.lastIndexOf(t => t.value === ")") : s.length
                 )
             );
 
@@ -241,6 +253,37 @@ function generateTAC(tokens) {
 
             tac.push(`goto ${start}`);
             tac.push(`${end}:`);
+        }
+
+        // ===== FOR =====
+        else if (s[0].value === "for") {
+            let firstSemi = s.findIndex(t => t.value === ";");
+            let secondSemi = s.findIndex((t, idx) => t.value === ";" && idx > firstSemi);
+            
+            if (firstSemi !== -1 && secondSemi !== -1) {
+                let init = s.slice(2, firstSemi);
+                let cond = s.slice(firstSemi + 1, secondSemi);
+                let inc = s.slice(secondSemi + 1, s.length - 1);
+                
+                handleStatement(init);
+                
+                let start = newLabel();
+                let end = newLabel();
+                
+                tac.push(`${start}:`);
+                
+                let condRes = evalExpr(cond);
+                tac.push(`ifFalse ${condRes} goto ${end}`);
+                
+                handleStatement(stmts[++i]);
+                handleStatement(inc);
+                
+                tac.push(`goto ${start}`);
+                tac.push(`${end}:`);
+            } else {
+                // Malformed for loop fallback
+                handleStatement(stmts[++i]);
+            }
         }
 
         // ===== NORMAL =====
