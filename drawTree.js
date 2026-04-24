@@ -45,67 +45,50 @@ function drawTree(trees) {
     let startY = 60;
     let gapY = 80;
 
-    // Filter out null/empty trees
-    trees = trees.filter(t => t !== null);
+    // Filter out null/empty lines
+    let validLines = trees.filter(t => t !== null && t.length > 0);
 
     let currentY = startY;
-    let prevY = null;
+    let coords = [];
 
-    for (let root of trees) {
-        let depth = getDepth(root);
+    // First pass: calculate coordinates
+    for (let i = 0; i < validLines.length; i++) {
+        let tokens = validLines[i];
+        let lineCoords = [];
 
-        // Base offset depends on depth to prevent overlap at lower levels
-        let initialOffset = Math.pow(2, depth - 1) * 35;
+        let tokenCount = tokens.length;
 
-        // Draw sequence line between tree segments
-        if (prevY !== null) {
-            ctx.strokeStyle = "#4ade80"; // Neon green for program flow
-            ctx.setLineDash([5, 5]);
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2, prevY + 18);
-            ctx.lineTo(canvas.width / 2, currentY - 18);
-            ctx.stroke();
-            ctx.setLineDash([]); // reset dash for normal child lines
+        // Calculate total width based on number of tokens to space them nicely
+        let spacing = Math.min(120, (canvas.width - 100) / Math.max(1, tokenCount));
+
+        let startX = (canvas.width / 2) - (spacing * (tokenCount - 1) / 2);
+
+        for (let j = 0; j < tokenCount; j++) {
+            let childX = startX + (spacing * j);
+            let childY = currentY;
+            lineCoords.push({ x: childX, y: childY });
         }
-
-        // Draw this statement's tree
-        drawHierarchical(ctx, root, canvas.width / 2, currentY, initialOffset, gapY);
-
-        prevY = currentY;
-
-        // Move down for the next statement
-        currentY += (depth * gapY) + 60;
+        coords.push(lineCoords);
+        currentY += gapY;
     }
-}
 
-function getDepth(node) {
-    if (!node) return 0;
-    if (!node.children || node.children.length === 0) return 1;
-    return 1 + Math.max(...node.children.map(getDepth));
-}
+    // Second pass: draw lines FIRST so they are behind nodes
+    for (let i = 1; i < validLines.length; i++) {
+        let parentNode = coords[i - 1][0];
+        let children = coords[i];
 
-function drawHierarchical(ctx, node, x, y, offset, gapY) {
-    if (!node) return;
-
-    if (node.children && node.children.length > 0) {
-        let childCount = node.children.length;
-
-        // Calculate starting X for children so they are centered around parent
-        let startX = x - (offset * (childCount - 1) / 2);
-
-        for (let i = 0; i < childCount; i++) {
-            let childX = startX + (offset * i);
-            let childY = y + gapY;
-
-            // Draw line to child
-            drawLine(ctx, x, y + 18, childX, childY - 18);
-
-            // Recurse (reduce offset for deeper levels)
-            drawHierarchical(ctx, node.children[i], childX, childY, offset / 1.8, gapY);
+        for (let child of children) {
+            drawLine(ctx, parentNode.x, parentNode.y + 18, child.x, child.y - 18);
         }
     }
 
-    // Draw the node on top of lines
-    drawNode(ctx, node.val, x, y);
+    // Third pass: draw the actual nodes
+    for (let i = 0; i < validLines.length; i++) {
+        let tokens = validLines[i];
+        let lineCoords = coords[i];
+
+        for (let j = 0; j < tokens.length; j++) {
+            drawNode(ctx, tokens[j], lineCoords[j].x, lineCoords[j].y);
+        }
+    }
 }
