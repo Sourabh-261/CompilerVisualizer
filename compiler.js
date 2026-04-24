@@ -36,7 +36,7 @@ function compileFull(code) {
         }
 
         msgs.push(msg);
-        trees.push(makeTree(oldFormat));
+        trees.push(oldFormat.map(x => x[1]));
     }
 
     let tac = generateTAC(all);
