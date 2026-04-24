@@ -1,67 +1,52 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Compiler Visualizer</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Compiler Visualizer</title>
 
-<script src="dfa.js"></script>
-<script src="lexer.js"></script>
-<script src="symbolTable.js"></script>
-<script src="parser.js"></script>
-<script src="tree.js"></script>
-<script src="compiler.js"></script>
-<script src="drawTree.js"></script>
-<script src="drawDFA.js"></script>
-<script src="highlights.js"></script>
-<script src="script.js"></script>
+    <link rel="stylesheet" href="style.css?v=2">
 
+    <script src="lexer.js?v=2"></script>
+    <script src="parser.js?v=2"></script>
+    <script src="symbolTable.js?v=2"></script>
+    <script src="tac.js?v=2"></script>
+    <script src="tree.js?v=2"></script>
+    <script src="drawTree.js?v=2"></script>
+    <script src="highlights.js?v=2"></script>
+    <script src="compiler.js?v=2"></script>
+    <script src="background.js?v=1" defer></script>
+    <script src="script.js?v=2" defer></script>
+    <script src="cfg.js?v=2"></script>
 </head>
 
 <body>
 
-<h2>Compiler Visualizer</h2>
+    <h1>⚡ Compiler Visualizer</h1>
 
-<textarea id="code">
-int x = 5 ;
-float y = 10 ;
-</textarea>
+    <textarea id="code" placeholder="Write your code here..."></textarea>
 
-<br><br>
+    <div class="btn-container">
+        <button onclick="setActive(this); runCompiler('tokens')">1. Lexer</button>
+        <button onclick="setActive(this); runCompiler('symbols')">2. Symbol Table</button>
+        <button onclick="setActive(this); runCompiler('errors')">3. Errors</button>
+        <button onclick="setActive(this); runCompiler('tree')">4. Tree</button>
+        <button onclick="setActive(this); runCompiler('cfg')">5. CFG</button>
+        <button onclick="setActive(this); runCompiler('tac')">6. 3AC</button>
+        <button onclick="clearAll()">Clear</button>
+        <button onclick="resetCode()">Reset</button>
+    </div>
 
-<button onclick="runCompiler()">Compile</button>
+    <table id="tokens">
+        <tbody></tbody>
+    </table>
+    <div id="symbols"></div>
+    <div id="errors"></div>
+    <div id="tac"></div>
 
-<div class="row">
-
-<div>
-<h3>Tokens</h3>
-
-<table id="tokens">
-<thead>
-<tr>
-<th>Line</th>
-<th>Type</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-
-<h3>Symbol Table</h3>
-<pre id="symbols"></pre>
-
-<h3>Errors</h3>
-<pre id="errors"></pre>
-</div>
-
-<div>
-<h3>Parse Tree</h3>
-<canvas id="tree" width="400" height="200"></canvas>
-
-<h3>DFA</h3>
-<canvas id="dfa" width="400" height="200"></canvas>
-</div>
-
-</div>
+    <canvas id="tree" width="1400" height="5000"></canvas>
+    <canvas id="cfg" width="1450" height="5000"></canvas>
 
 </body>
+
 </html>

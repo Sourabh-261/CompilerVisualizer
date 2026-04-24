@@ -1,33 +1,58 @@
-const keywords = ["int", "float"];
-const operators = ["="];
-const symbols = [";"];
+const keywords = [
+    "int","float","double","char","bool",
+    "if","else","while","for","return",
+    "true","false","printf","scanf"
+];
 
-function tokenize(line) {
+const operators = [
+    "+","-","*","/","%","=",
+    "==","!=","<",">","<=",">=",
+    "&&","||","!","++","--",
+    "+=","-=","*=","/="
+];
 
-    let words = line.match(/[a-zA-Z]+|[0-9]+|=|;/g) || [];
+const symbols = [";",",","(",")","{","}","[","]"];
 
-    let t = [];
+function isIdentifier(w){
+    return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(w);
+}
 
-    for (let w of words) {
+function isNumber(w){
+    return /^[0-9]+(\.[0-9]+)?$/.test(w);
+}
 
-        if (keywords.includes(w))
-            t.push(["KEY", w]);
+function tokenize(line){
 
-        else if (operators.includes(w))
-            t.push(["OP", w]);
-
-        else if (symbols.includes(w))
-            t.push(["SYM", w]);
-
-        else if (isNumber(w))
-            t.push(["NUM", w]);
-
-        else if (isIdentifier(w))
-            t.push(["ID", w]);
-
-        else
-            t.push(["INVALID", w]);
+    // ✅ HANDLE #include
+    if(line.trim().startsWith("#include")){
+        return [{ type: "PREPROCESSOR", value: line.trim() }];
     }
 
-    return t;
+    // remove comments
+    line = line.replace(/\/\/.*$/, "");
+    line = line.replace(/\/\*.*?\*\//g, "");
+
+    let words = line.match(
+        /"([^"\\]|\\.)*"|'([^'\\]|\\.)*'|[a-zA-Z_][a-zA-Z0-9_]*|\d+\.\d+|\d+|==|!=|<=|>=|\+\+|--|\+=|-=|\*=|\/=|&&|\|\||[+\-*/%=<>!;,()[\]{}]/g
+    ) || [];
+
+    let tokens = [];
+
+    for(let w of words){
+
+        let type = "";
+
+        if(keywords.includes(w)) type = "KEY";
+        else if(operators.includes(w)) type = "OP";
+        else if(symbols.includes(w)) type = "SYM";
+        else if(/^".*"$/.test(w)) type = "STRING";
+        else if(/^'.*'$/.test(w)) type = "CHAR";
+        else if(isNumber(w)) type = "NUM";
+        else if(isIdentifier(w)) type = "ID";
+        else type = "INVALID";
+
+        tokens.push({ type: type, value: w }); // ✅ FIXED
+    }
+
+    return tokens;
 }

@@ -1,43 +1,89 @@
-function getTreeColor(token) {
+// 🎯 DRAW NODE
+function drawNode(ctx, text, x, y) {
 
-    if (token === "int" || token === "float")
-        return "#569cd6";
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = "#38bdf8";
 
-    if (/^[0-9]+$/.test(token))
-        return "#b5cea8";
+    ctx.beginPath();
+    ctx.roundRect(x - 35, y - 18, 70, 36, 10);
+    ctx.fill();
+    ctx.stroke();
 
-    if (token === "=" || token === ";")
-        return "#d4d4d4";
-
-    return "#9cdcfe"; 
+    ctx.fillStyle = "#e2e8f0";
+    ctx.fillText(text, x, y);
 }
 
+
+// 🎯 DRAW LINE
+function drawLine(ctx, x1, y1, x2, y2) {
+
+    ctx.strokeStyle = "#64748b";
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+}
+
+
+// 🌳 MAIN TREE DRAWER
 function drawTree(tree) {
 
-    let c = document.getElementById("tree");
-    let ctx = c.getContext("2d");
+    let canvas = document.getElementById("tree");
 
-    ctx.clearRect(0, 0, 400, 200);
+    if (!canvas) return;
 
-    ctx.font = "14px Consolas";
+    let ctx = canvas.getContext("2d");
 
-    let y = 30;
+    // clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let line of tree) {
+    ctx.font = "13px Consolas";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
-        let x = 10;
+    let startY = 60;
+    let gapY = 90;
 
-        if (!Array.isArray(line))
-            line = [line];
+    let prevLevelNodes = [];
 
-        for (let t of line) {
+    tree.forEach((line, i) => {
 
-            ctx.fillStyle = getTreeColor(t); // 🎨 apply color
-            ctx.fillText(t, x, y);
+        if (!Array.isArray(line)) line = [line];
 
-            x += 50; // spacing
+        let nodeCount = line.length;
+
+        // dynamic spacing
+        let gapX = canvas.width / (nodeCount + 1);
+        let y = startY + i * gapY;
+
+        let currentLevelNodes = [];
+
+        line.forEach((token, j) => {
+
+            let x = gapX * (j + 1);
+
+            drawNode(ctx, token, x, y);
+
+            currentLevelNodes.push({ x, y });
+        });
+
+        // ✅ BETTER CONNECTION LOGIC
+        if (i > 0 && prevLevelNodes.length > 0) {
+
+            currentLevelNodes.forEach((child, index) => {
+
+                // map child to nearest parent
+                let parentIndex = Math.floor(index * prevLevelNodes.length / currentLevelNodes.length);
+                let parent = prevLevelNodes[parentIndex];
+
+                if (parent) {
+                    drawLine(ctx, parent.x, parent.y + 18, child.x, child.y - 18);
+                }
+            });
         }
 
-        y += 30;
-    }
+        prevLevelNodes = currentLevelNodes;
+    });
 }

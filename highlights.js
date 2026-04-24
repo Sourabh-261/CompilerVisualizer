@@ -1,45 +1,63 @@
-function getColor(type) {
+// 🎨 COLOR MAPPING
+function getColor(type){
 
-    if (type === "KEY") return "#569cd6";   // blue
-    if (type === "ID") return "#9cdcfe";    // light blue
-    if (type === "NUM") return "#b5cea8";   // green
-    if (type === "OP") return "#d4d4d4";    // white
-    if (type === "SYM") return "#d4d4d4";   // white
+    if(type === "KEY") return "#569cd6";
+    if(type === "ID") return "#9cdcfe";
+    if(type === "NUM") return "#b5cea8";
+    if(type === "STRING") return "#ce9178";
+    if(type === "CHAR") return "#d7ba7d";
+    if(type === "OP") return "#d4d4d4";
+    if(type === "SYM") return "#d4d4d4";
+    if(type === "PREPROCESSOR") return "#c586c0";
 
-    return "#ff5555"; // error
+    return "#ff5555"; // INVALID
 }
 
-function showTokens(allTokens) {
 
-    let table = document.getElementById("tokens");
-    let tbody = table.querySelector("tbody");
+// 🔥 GROUP TOKENS
+function groupTokens(tokens){
+
+    let grouped = {};
+
+    for(let t of tokens){
+
+        let type = t.type;
+        let value = t.value;
+
+        if(!grouped[type]){
+            grouped[type] = new Set();
+        }
+
+        grouped[type].add(value);
+    }
+
+    return grouped;
+}
+
+
+// 🔥 DISPLAY TOKENS TABLE
+function showTokens(tokens){
+
+    let grouped = groupTokens(tokens);
+    let tbody = document.querySelector("#tokens tbody");
 
     tbody.innerHTML = "";
 
-    for (let i = 0; i < allTokens.length; i++) {
+    for(let type in grouped){
 
-        let lineTokens = allTokens[i];
+        let values = [...grouped[type]].sort();
+        let color = getColor(type);
 
-        for (let t of lineTokens) {
+        let row = document.createElement("tr");
 
-            let row = document.createElement("tr");
+        row.innerHTML = `
+            <td>-</td>
+            <td style="color:${color}; font-weight:bold">${type}</td>
+            <td style="color:${color}">
+                ${values.join(", ")} (${values.length})
+            </td>
+        `;
 
-            let col1 = document.createElement("td");
-            col1.textContent = i + 1;
-
-            let col2 = document.createElement("td");
-            col2.textContent = t[0];
-            col2.style.color = getColor(t[0]);
-
-            let col3 = document.createElement("td");
-            col3.textContent = t[1];
-            col3.style.color = getColor(t[0]);
-
-            row.appendChild(col1);
-            row.appendChild(col2);
-            row.appendChild(col3);
-
-            tbody.appendChild(row);
-        }
+        tbody.appendChild(row);
     }
 }
