@@ -49,6 +49,7 @@ function drawTree(trees) {
     trees = trees.filter(t => t !== null);
 
     let currentY = startY;
+    let prevY = null;
 
     for (let root of trees) {
         let depth = getDepth(root);
@@ -56,8 +57,22 @@ function drawTree(trees) {
         // Base offset depends on depth to prevent overlap at lower levels
         let initialOffset = Math.pow(2, depth - 1) * 35;
 
+        // Draw sequence line between tree segments
+        if (prevY !== null) {
+            ctx.strokeStyle = "#4ade80"; // Neon green for program flow
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, prevY + 18);
+            ctx.lineTo(canvas.width / 2, currentY - 18);
+            ctx.stroke();
+            ctx.setLineDash([]); // reset dash for normal child lines
+        }
+
         // Draw this statement's tree
         drawHierarchical(ctx, root, canvas.width / 2, currentY, initialOffset, gapY);
+
+        prevY = currentY;
 
         // Move down for the next statement
         currentY += (depth * gapY) + 60;
