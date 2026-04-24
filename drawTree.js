@@ -2,6 +2,9 @@
 
 // 🎯 DRAW NODE
 function drawNode(ctx, text, x, y) {
+    if (text === undefined || text === null) text = "undefined";
+    text = String(text); // Ensure it's a string
+
     ctx.fillStyle = "#1e293b";
     ctx.strokeStyle = "#38bdf8";
 
@@ -42,53 +45,93 @@ function drawTree(trees) {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    let startY = 60;
+    // Filter out null/empty trees
+    let validTrees = trees.filter(t => t !== null && typeof t === "object");
+    if (validTrees.length === 0) return;
+
+    // Create a unified Program root to interconnect everything
+    let root = {
+        val: "Program",
+        children: validTrees
+    };
+
+    // 1. Assign Y coordinates based on depth
     let gapY = 80;
+    assignY(root, 60, gapY);
 
-    // Filter out null/empty lines
-    let validLines = trees.filter(t => t !== null && t.length > 0);
+    // 2. Assign X coordinates based on leaf spacing
+    let leafSpacing = 120; // Tighten spacing to fix "blank space"
+    let nextLeafX = 0;
 
-    let currentY = startY;
-    let coords = [];
-
-    // First pass: calculate coordinates
-    for (let i = 0; i < validLines.length; i++) {
-        let tokens = validLines[i];
-        let lineCoords = [];
-
-        let tokenCount = tokens.length;
-
-        // Calculate total width based on number of tokens to space them nicely
-        let spacing = Math.min(120, (canvas.width - 100) / Math.max(1, tokenCount));
-
-        let startX = (canvas.width / 2) - (spacing * (tokenCount - 1) / 2);
-
-        for (let j = 0; j < tokenCount; j++) {
-            let childX = startX + (spacing * j);
-            let childY = currentY;
-            lineCoords.push({ x: childX, y: childY });
-        }
-        coords.push(lineCoords);
-        currentY += gapY;
-    }
-
-    // Second pass: draw lines FIRST so they are behind nodes
-    for (let i = 1; i < validLines.length; i++) {
-        let parentNode = coords[i - 1][0];
-        let children = coords[i];
-
-        for (let child of children) {
-            drawLine(ctx, parentNode.x, parentNode.y + 18, child.x, child.y - 18);
+    function assignX(node) {
+        if (!node) return;
+        if (!node.children || node.children.length === 0) {
+            node.x = nextLeafX;
+            nextLeafX += leafSpacing;
+        } else {
+            for (let child of node.children) {
+                assignX(child);
+            }
+            let first = node.children[0].x;
+            let last = node.children[node.children.length - 1].x;
+            node.x = (first + last) / 2;
         }
     }
 
-    // Third pass: draw the actual nodes
-    for (let i = 0; i < validLines.length; i++) {
-        let tokens = validLines[i];
-        let lineCoords = coords[i];
+    assignX(root);
 
-        for (let j = 0; j < tokens.length; j++) {
-            drawNode(ctx, tokens[j], lineCoords[j].x, lineCoords[j].y);
+    // Dynamic canvas resize for wide trees
+    let requiredWidth = Math.max(1400, nextLeafX + 200);
+    if (canvas.width < requiredWidth) {
+        canvas.width = requiredWidth;
+        // Re-apply context settings after resizing clears them
+        ctx.font = "14px Consolas";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+    }
+
+    // 3. Center the entire tree on the canvas
+    let shiftX = (canvas.width / 2) - root.x;
+    function applyShift(node) {
+        if (!node) return;
+        node.x += shiftX;
+        if (node.children) {
+            for (let c of node.children) applyShift(c);
+        }
+    }
+    applyShift(root);
+
+    // 4. Draw lines (first pass)
+    function drawAllLines(node) {
+        if (!node || !node.children) return;
+        for (let child of node.children) {
+            if (child) {
+                drawLine(ctx, node.x, node.y + 18, child.x, child.y - 18);
+                drawAllLines(child);
+            }
+        }
+    }
+    drawAllLines(root);
+
+    // 5. Draw nodes (second pass)
+    function drawAllNodes(node) {
+        if (!node) return;
+        drawNode(ctx, node.val, node.x, node.y);
+        if (node.children) {
+            for (let child of node.children) {
+                drawAllNodes(child);
+            }
+        }
+    }
+    drawAllNodes(root);
+}
+
+function assignY(node, currentY, gapY) {
+    if (!node) return;
+    node.y = currentY;
+    if (node.children) {
+        for (let child of node.children) {
+            assignY(child, currentY + gapY, gapY);
         }
     }
 }
