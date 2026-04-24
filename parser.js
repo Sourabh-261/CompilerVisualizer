@@ -1,3 +1,4 @@
+"use strict";
 function check(tokens, lineNo) {
 
     if (!tokens || tokens.length === 0)

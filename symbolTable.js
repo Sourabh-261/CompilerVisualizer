@@ -1,3 +1,4 @@
+"use strict";
 let sym = {};
 
 function addSymbol(name, type, value, line) {

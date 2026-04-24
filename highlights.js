@@ -1,3 +1,4 @@
+"use strict";
 // 🎨 COLOR MAPPING
 function getColor(type){
 

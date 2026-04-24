@@ -1,3 +1,4 @@
+"use strict";
 function drawCFG(tac) {
     let canvas = document.getElementById("cfg");
     if (!canvas) return;

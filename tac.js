@@ -1,3 +1,4 @@
+"use strict";
 function generateTAC(tokens) {
 
     let tac = [];
@@ -45,6 +46,14 @@ function generateTAC(tokens) {
         function process(op) {
             let b = stack.pop();
             let a = stack.pop();
+
+            // Handle unary operators (e.g. -5)
+            if (a === undefined && b !== undefined) {
+                let t = newTemp();
+                tac.push(`${t} = ${op}${b}`);
+                stack.push(t);
+                return;
+            }
 
             if (!a || !b) return;
 

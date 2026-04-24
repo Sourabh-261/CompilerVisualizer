@@ -1,3 +1,4 @@
+"use strict";
 const keywords = [
     "int","float","double","char","bool",
     "if","else","while","for","return",

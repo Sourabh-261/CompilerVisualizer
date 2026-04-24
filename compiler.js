@@ -1,3 +1,5 @@
+"use strict";
+
 function compileFull(code) {
 
     sym = {};
@@ -38,6 +40,21 @@ function compileFull(code) {
     }
 
     let tac = generateTAC(all);
+
+    // Global Bracket/Paren Check
+    let stack = [];
+    for (let t of all) {
+        if (t.value === "{" || t.value === "(") {
+            stack.push(t);
+        } else if (t.value === "}") {
+            let last = stack.pop();
+            if (!last || last.value !== "{") msgs.push(`Global Error: Unmatched '}'`);
+        } else if (t.value === ")") {
+            let last = stack.pop();
+            if (!last || last.value !== "(") msgs.push(`Global Error: Unmatched ')'`);
+        }
+    }
+    stack.forEach(t => msgs.push(`Global Error: Missing closing for '${t.value}'`));
 
     return {
         tokens: all,
