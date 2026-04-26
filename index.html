@@ -22,9 +22,14 @@
 
 <body>
 
-    <h1>⚡C Compiler Visualizer</h1>
+    <h1>⚡ Compiler Visualizer</h1>
 
-    <textarea id="code" placeholder="Write your code here..."></textarea>
+    <div class="editor-container">
+        <div class="editor-backdrop">
+            <div id="code-highlights"></div>
+        </div>
+        <textarea id="code" placeholder="Write your code here..." oninput="highlightLiveErrors()" onscroll="syncScroll()"></textarea>
+    </div>
 
     <div class="btn-container">
         <button onclick="setActive(this); runCompiler('tokens')">1. Lexer</button>

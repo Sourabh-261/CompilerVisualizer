@@ -81,12 +81,29 @@ function runCompiler(mode) {
         else if (mode === "errors") {
             document.getElementById("errors").style.display = "block";
 
-            document.getElementById("errors").innerHTML =
-                r.messages.map(m =>
-                    m.includes("OK")
-                        ? `<span style="color:#4ade80;">✔ ${m}</span>`
-                        : `<span style="color:#f87171;">❌ ${m}</span>`
-                ).join("<br><br>");
+            let codeLines = code.split("\n");
+
+            let errorHtml = r.messages.map((m, i) => {
+                if (m.includes("OK")) {
+                    return `<div style="color:#4ade80; margin-bottom: 5px;">✔ ${m}</div>`;
+                } else if (m.startsWith("Global Error")) {
+                    return `<div style="color:#f87171; margin-bottom: 5px; font-weight: bold;">❌ ${m}</div>`;
+                } else {
+                    let lineMatch = m.match(/Line (\d+):/);
+                    let lineNo = lineMatch ? parseInt(lineMatch[1]) : i + 1;
+                    let lineText = codeLines[lineNo - 1] || "";
+                    
+                    return `
+                    <div style="background: rgba(248, 113, 113, 0.1); border-left: 4px solid #f87171; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                        <div style="color:#f87171; font-weight: bold; margin-bottom: 5px;">❌ ${m}</div>
+                        <div style="font-family: Consolas, monospace; color: #e5e7eb; background: #0f172a; padding: 8px; border-radius: 4px; border: 1px solid #334155; overflow-x: auto; white-space: pre;">
+                            <span style="color: #94a3b8; margin-right: 10px; user-select: none;">${lineNo} |</span><span style="color: #f87171; text-decoration: underline wavy #f87171;">${escapeHtml(lineText)}</span>
+                        </div>
+                    </div>`;
+                }
+            }).join("");
+
+            document.getElementById("errors").innerHTML = errorHtml;
         }
 
         else if (mode === "tree") {
@@ -197,4 +214,68 @@ function resetCode(btn) {
 
     let buttons = document.querySelectorAll(".btn-container button");
     buttons.forEach(b => b.classList.remove("active"));
+}
+
+// ================= LIVE ERROR HIGHLIGHTING =================
+function highlightLiveErrors() {
+    let code = document.getElementById("code").value;
+    let backdrop = document.getElementById("code-highlights");
+    
+    if (!code.trim()) {
+        backdrop.innerHTML = "";
+        document.querySelector(".editor-backdrop").style.borderColor = "#334155";
+        return;
+    }
+
+    try {
+        let r = compileFull(code);
+        let lines = code.split("\n");
+        let html = "";
+        
+        for (let i = 0; i < lines.length; i++) {
+            let lineText = lines[i];
+            let isError = r.messages.some(m => m.startsWith(`Line ${i + 1}:`) && !m.includes("OK"));
+            
+            if (isError) {
+                let msg = r.messages.find(m => m.startsWith(`Line ${i + 1}:`) && !m.includes("OK"));
+                html += `<span class="error-line" title="${escapeHtml(msg)}">${escapeHtml(lineText) || " "}</span>\n`;
+            } else {
+                html += `<span>${escapeHtml(lineText)}</span>\n`;
+            }
+        }
+        
+        if (code.endsWith('\n')) {
+            html += `<br>`;
+        }
+        
+        backdrop.innerHTML = html;
+        
+        let globalError = r.messages.find(m => m.startsWith("Global Error"));
+        let editorContainer = document.querySelector(".editor-backdrop");
+        if (globalError) {
+            editorContainer.style.borderColor = "#f87171";
+        } else {
+            editorContainer.style.borderColor = "#334155";
+        }
+        
+    } catch (e) {
+        // Syntax error caught midway
+    }
+}
+
+function syncScroll() {
+    let textarea = document.getElementById("code");
+    let backdrop = document.querySelector(".editor-backdrop");
+    backdrop.scrollTop = textarea.scrollTop;
+    backdrop.scrollLeft = textarea.scrollLeft;
+}
+
+function escapeHtml(unsafe) {
+    if (!unsafe) return "";
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
 }

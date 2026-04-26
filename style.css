@@ -11,16 +11,67 @@ h1 {
     color: #38bdf8;
 }
 
-textarea#code {
+.editor-container {
+    position: relative;
     width: 100%;
     height: 150px;
+}
+
+.editor-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background: #020617;
-    color: #e5e7eb;
     border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: Consolas, monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    pointer-events: none;
+    color: transparent;
+    z-index: 1;
+}
+
+#code-highlights {
+    color: transparent;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+textarea#code {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: #e5e7eb;
+    border: 1px solid transparent;
     padding: 10px;
     border-radius: 8px;
     font-size: 14px;
     font-family: Consolas, monospace;
+    box-sizing: border-box;
+    resize: none;
+    outline: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-y: auto;
+    margin: 0;
+    z-index: 2;
+}
+
+.error-line {
+    background-color: rgba(248, 113, 113, 0.3);
+    border-radius: 3px;
+    display: inline-block;
+    min-width: 100%;
 }
 
 
