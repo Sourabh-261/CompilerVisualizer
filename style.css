@@ -130,7 +130,7 @@ td, th {
     border-bottom: 1px solid #334155;
 }
 
-canvas#tree, canvas#cfg {
+canvas#tree, canvas#cfg, canvas#dfaCanvas {
     margin-top: 10px;
     background: #020617;
     border-radius: 8px;

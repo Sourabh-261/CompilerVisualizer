@@ -54,6 +54,7 @@ function runCompiler(mode) {
         document.getElementById("tac").style.display = "none";
         document.getElementById("tree").style.display = "none";
         document.getElementById("cfg").style.display = "none";
+        document.getElementById("dfaCanvas").style.display = "none";
 
         // ================= CLEAR OUTPUT =================
         document.querySelector("#tokens tbody").innerHTML = "";
@@ -66,6 +67,9 @@ function runCompiler(mode) {
 
         let ctxCfg = document.getElementById("cfg").getContext("2d");
         ctxCfg.clearRect(0, 0, 1450, 5000);
+
+        let ctxDfa = document.getElementById("dfaCanvas").getContext("2d");
+        ctxDfa.clearRect(0, 0, 1400, 800);
 
         // ================= MODES =================
         if (mode === "tokens") {
@@ -121,6 +125,11 @@ function runCompiler(mode) {
             showTAC(r.tac);
         }
 
+        else if (mode === "dfa") {
+            document.getElementById("dfaCanvas").style.display = "block";
+            drawDFAForTokens(r.tokens);
+        }
+
         // ================= RESET =================
         else if (mode === "reset") {
 
@@ -134,6 +143,7 @@ function runCompiler(mode) {
             document.getElementById("tac").innerHTML = "";
             ctxTree.clearRect(0, 0, 400, 200);
             ctxCfg.clearRect(0, 0, 1450, 5000);
+            ctxDfa.clearRect(0, 0, 1400, 800);
         }
 
         // ================= CLEAR =================

@@ -249,10 +249,15 @@ function generateTAC(tokens) {
 
             tac.push(`${start}:`);
 
+            let closeParen = -1;
+            for (let j = s.length - 1; j >= 0; j--) {
+                if (s[j].value === ")") { closeParen = j; break; }
+            }
+
             let cond = evalExpr(
                 s.slice(
                     s.findIndex(t => t.value === "(") + 1,
-                    s.lastIndexOf(t => t.value === ")") !== -1 ? s.lastIndexOf(t => t.value === ")") : s.length
+                    closeParen !== -1 ? closeParen : s.length
                 )
             );
 

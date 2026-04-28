@@ -7,17 +7,19 @@
 
     <link rel="stylesheet" href="style.css?v=2">
 
-    <script src="lexer.js?v=2"></script>
-    <script src="parser.js?v=2"></script>
-    <script src="symbolTable.js?v=2"></script>
-    <script src="tac.js?v=2"></script>
-    <script src="tree.js?v=2"></script>
-    <script src="drawTree.js?v=2"></script>
-    <script src="highlights.js?v=2"></script>
-    <script src="compiler.js?v=2"></script>
-    <script src="background.js?v=1" defer></script>
-    <script src="script.js?v=2" defer></script>
-    <script src="cfg.js?v=2"></script>
+    <script src="lexer.js?v=3"></script>
+    <script src="parser.js?v=3"></script>
+    <script src="symbolTable.js?v=3"></script>
+    <script src="tac.js?v=3"></script>
+    <script src="tree.js?v=3"></script>
+    <script src="drawTree.js?v=3"></script>
+    <script src="highlights.js?v=3"></script>
+    <script src="dfa.js?v=3"></script>
+    <script src="drawDFA.js?v=1"></script>
+    <script src="cfg.js?v=3"></script>
+    <script src="compiler.js?v=3"></script>
+    <script src="background.js?v=3" defer></script>
+    <script src="script.js?v=3" defer></script>
 </head>
 
 <body>
@@ -28,7 +30,7 @@
         <div class="editor-backdrop">
             <div id="code-highlights"></div>
         </div>
-        <textarea id="code" placeholder="Write your code here..." oninput="highlightLiveErrors()" onscroll="syncScroll()"></textarea>
+        <textarea id="code" placeholder="Write your code here..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" oninput="highlightLiveErrors()" onscroll="syncScroll()"></textarea>
     </div>
 
     <div class="btn-container">
@@ -38,6 +40,7 @@
         <button onclick="setActive(this); runCompiler('tree')">4. Tree</button>
         <button onclick="setActive(this); runCompiler('cfg')">5. CFG</button>
         <button onclick="setActive(this); runCompiler('tac')">6. 3AC</button>
+        <button onclick="setActive(this); runCompiler('dfa')">7. DFA</button>
         <button onclick="clearAll()">Clear</button>
         <button onclick="resetCode()">Reset</button>
     </div>
@@ -52,6 +55,7 @@
     <div style="width: 100%; overflow-x: auto; margin-top: 10px;">
         <canvas id="tree" width="1400" height="5000"></canvas>
         <canvas id="cfg" width="1450" height="5000"></canvas>
+        <canvas id="dfaCanvas" width="1400" height="800"></canvas>
     </div>
 
 </body>
