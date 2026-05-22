@@ -1,6 +1,6 @@
 "use strict";
 // ============================================
-// Codeezy — C Language Lexical Analyzer
+// C Language Lexical Analyzer
 // ============================================
 
 // C language keywords
