@@ -1,5 +1,5 @@
 // ============================================
-// Codeezy — DFA Definitions & Simulator
+// DFA Definitions & Simulator
 // ============================================
 
 /**
