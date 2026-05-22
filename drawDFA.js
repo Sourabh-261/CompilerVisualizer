@@ -1,7 +1,7 @@
 "use strict";
 
 // ============================================
-// Codeezy — DFA Visualizer (Canvas Renderer)
+// DFA Visualizer (Canvas Renderer)
 // ============================================
 
 /**
